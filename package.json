@@ -1,0 +1,12 @@
+{
+  "name": "starsandlove-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node generate.mjs"
+  },
+  "dependencies": {
+    "@base44/sdk": "latest"
+  }
+}
