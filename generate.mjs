@@ -177,7 +177,7 @@ function indexPage() {
 
 async function copyStatic() {
   await fs.mkdir(OUT, { recursive: true });
-  for (const f of ['logo.png', 'teom.woff2', 'teom.otf']) {
+  for (const f of ['logo.png', 'teom.woff2', 'teom.otf', 'story.png']) {
     try { await fs.copyFile(path.join('static', f), path.join(OUT, f)); }
     catch (e) { console.warn(`could not copy static/${f}: ${e.message}`); }
   }
@@ -200,26 +200,23 @@ async function buildLanding(recsBySign) {
     : `<span class="zbadge" aria-hidden="true">${GLYPHS[s.he] || '✦'}</span>`;
 
   const buttons = SIGNS.map(s => `
-        <button class="zbtn" id="zb-${s.slug}" type="button" onclick="showZ('${s.slug}')" aria-controls="z-${s.slug}">
+        <button class="zbtn" id="zb-${s.slug}" type="button" onclick="showZ('${s.slug}')" aria-haspopup="dialog">
           ${iconHtml(s)}
           <span class="zname">${esc(s.he)}</span>
         </button>`).join('');
 
-  const panels = SIGNS.map(s => {
+  const data = SIGNS.map(s => {
     const rec = recsBySign[s.he];
     const summary = (rec && rec.weekly_summary) ? rec.weekly_summary : fallback(s.he);
     return `
-        <div class="zpanel" id="z-${s.slug}" hidden>
+        <div class="zdata" id="zd-${s.slug}" hidden>
           <h4>מזל ${esc(s.he)} · השבוע</h4>
-          <p>${esc(summary)}</p>
-          <div class="zactions">
-            <a class="zmore" href="/horoscope/${s.slug}/">עוד...</a>
-            <a class="btn btn-sm" href="${CTA_URL}">צרי מפת לידה — עכשיו</a>
-          </div>
+          <p>${esc(summary)} <a class="zmore" href="/horoscope/${s.slug}/">עוד...</a></p>
+          <a class="btn btn-block" href="${CTA_URL}">צרי מפת לידה - עכשיו</a>
         </div>`;
   }).join('');
 
-  const accordion = `<div class="zgrid">${buttons}\n      </div>\n      <div class="zpanels">${panels}\n      </div>`;
+  const accordion = `<div class="zgrid">${buttons}\n      </div>\n      <div class="zdata-store" hidden>${data}\n      </div>`;
 
   let tpl = await fs.readFile(path.join('static', 'index.html'), 'utf8');
   tpl = tpl.replace('<!--ZODIAC_ACCORDION-->', accordion);
@@ -281,4 +278,4 @@ async function main() {
   }
 }
 
-main().then(() => process.exit(0)).catch(e => { console.error(e); process.exit(1); });
+main().catch(e => { console.error(e); process.exit(1); });
