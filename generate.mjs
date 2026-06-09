@@ -28,7 +28,7 @@ const GLYPHS = {
   'מאזניים':'♎','עקרב':'♏','קשת':'♐','גדי':'♑','דלי':'♒','דגים':'♓',
 };
 
-// Icons are hosted locally in static/icons/<slug>.png (single source, no external dependency).
+// Icons are hosted locally in static/icons/<slug>.svg (single source, no external dependency).
 // Set USE_IMAGE_ICONS=0 to fall back to the gold unicode glyphs.
 const USE_IMAGE_ICONS = process.env.USE_IMAGE_ICONS !== '0';
 
@@ -135,7 +135,7 @@ function signPage(sign, rec) {
   return head(title, desc, canonical) + `
 <header><div class="wrap"><a href="/"><img src="/logo.png" alt="Stars & Love"></a></div></header>
 <main class="wrap">
-  <img src="/icons/${sign.slug}.png" alt="מזל ${esc(sign.he)}" width="96" height="96" style="display:block;width:96px;height:96px;border-radius:50%;margin:8px auto 4px">
+  <img src="/icons/${sign.slug}.svg" alt="מזל ${esc(sign.he)}" width="96" height="96" style="display:block;width:96px;height:96px;border-radius:50%;margin:8px auto 4px">
   <h1>הורוסקופ שבועי · מזל ${esc(sign.he)}</h1>
   <p class="sub">${rec?.week_start_date ? `${esc(fmtDate(rec.week_start_date))} – ${esc(fmtDate(rec.week_end_date))}` : 'השבוע'}</p>
 
@@ -160,7 +160,7 @@ function indexPage() {
   const desc = 'הורוסקופ שבועי מעודכן לכל 12 המזלות — אהבה, קריירה ויחסים. מבוסס AI ו-20 שנות ידע אסטרולוגי.';
   const canonical = `https://${SITE_DOMAIN}/horoscope/`;
   const grid = SIGNS.map(s =>
-    `<a class="sign" href="/horoscope/${s.slug}/"><img src="/icons/${s.slug}.png" alt="מזל ${esc(s.he)}" loading="lazy" width="56" height="56"><span class="name">${esc(s.he)}</span></a>`).join('');
+    `<a class="sign" href="/horoscope/${s.slug}/"><img src="/icons/${s.slug}.svg" alt="מזל ${esc(s.he)}" loading="lazy" width="56" height="56"><span class="name">${esc(s.he)}</span></a>`).join('');
   return head(title, desc, canonical) + `
 <header><div class="wrap"><a href="/"><img src="/logo.png" alt="Stars & Love"></a></div></header>
 <main class="wrap">
@@ -196,7 +196,7 @@ async function buildLanding(recsBySign) {
   const fallback = (he) => `ההורוסקופ השבועי למזל ${he} מתעדכן כל בוקר. הצצה קצרה למה שמחכה לך השבוע — והגרסה האישית המלאה במפת הלידה שלך.`;
 
   const iconHtml = (s) => USE_IMAGE_ICONS
-    ? `<img class="zico" src="icons/${s.slug}.png" alt="מזל ${esc(s.he)}" loading="lazy" width="74" height="74">`
+    ? `<img class="zico" src="icons/${s.slug}.svg" alt="מזל ${esc(s.he)}" loading="lazy" width="74" height="74">`
     : `<span class="zbadge" aria-hidden="true">${GLYPHS[s.he] || '✦'}</span>`;
 
   const buttons = SIGNS.map(s => `
