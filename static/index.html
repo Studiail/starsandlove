@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -39,7 +38,7 @@
     font-family:var(--serif);font-weight:700;font-size:1.2rem;padding:0 34px;border-radius:14px;border:none;cursor:pointer;
     transition:transform .18s,box-shadow .18s,background .18s;box-shadow:0 10px 28px -10px rgba(225,159,65,.6)}
   .btn:hover{transform:translateY(-2px);background:var(--gold-soft)}
-  .btn-block{display:flex;width:100%}
+  .btn-block{display:flex;width:100%;max-width:560px}
 
   .hero{text-align:center;padding:20px 0 4px}
   .eyebrow{color:var(--gold-soft);font-weight:500;letter-spacing:3px;font-size:.82rem;margin-bottom:8px}
@@ -51,27 +50,25 @@
   .zodiac{padding:12px 0 2px}
   .zsub{text-align:center;color:var(--cream-dim);font-weight:300;margin-bottom:10px}
   .zgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:370px;margin:0 auto}
-  .zbtn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:3px 2px;border-radius:14px}
-  .zico{width:100%;max-width:64px;aspect-ratio:1;border-radius:50%;object-fit:contain;display:block;
-    animation:zfloat 4s ease-in-out infinite, ztwinkle 3.2s ease-in-out infinite}
-  .zbtn:nth-child(2) .zico{animation-delay:.3s,.6s}
-  .zbtn:nth-child(3) .zico{animation-delay:.6s,1.1s}
-  .zbtn:nth-child(4) .zico{animation-delay:.9s,.4s}
-  .zbtn:nth-child(5) .zico{animation-delay:1.2s,1.4s}
-  .zbtn:nth-child(6) .zico{animation-delay:.2s,.9s}
-  .zbtn:nth-child(7) .zico{animation-delay:.8s,1.6s}
-  .zbtn:nth-child(8) .zico{animation-delay:1.1s,.2s}
-  .zbtn:nth-child(9) .zico{animation-delay:.5s,1.3s}
-  .zbtn:nth-child(10) .zico{animation-delay:1.4s,.7s}
-  .zbtn:nth-child(11) .zico{animation-delay:.4s,1s}
-  .zbtn:nth-child(12) .zico{animation-delay:1s,.5s}
-  .zbtn:hover .zico{transform:translateY(-4px)}
+  .zbtn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:3px 2px;border-radius:14px;
+    animation:zfloat 4s ease-in-out infinite}
+  .zico{width:100%;max-width:64px;aspect-ratio:1;object-fit:contain;display:block}
+  .zbtn:nth-child(2){animation-delay:.3s}
+  .zbtn:nth-child(3){animation-delay:.6s}
+  .zbtn:nth-child(4){animation-delay:.9s}
+  .zbtn:nth-child(5){animation-delay:1.2s}
+  .zbtn:nth-child(6){animation-delay:.2s}
+  .zbtn:nth-child(7){animation-delay:.8s}
+  .zbtn:nth-child(8){animation-delay:1.1s}
+  .zbtn:nth-child(9){animation-delay:.5s}
+  .zbtn:nth-child(10){animation-delay:1.4s}
+  .zbtn:nth-child(11){animation-delay:.4s}
+  .zbtn:nth-child(12){animation-delay:1s}
   .zname{font-size:.82rem;color:var(--cream-dim);font-weight:500}
   @keyframes zfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-  @keyframes ztwinkle{0%,100%{filter:brightness(1) drop-shadow(0 0 0 rgba(237,193,123,0))}50%{filter:brightness(1.13) drop-shadow(0 0 6px rgba(237,193,123,.45))}}
 
   .ctaband{text-align:center;padding:14px 0 6px}
-  .ctaband .btn{margin:0 auto}
+  .ctaband .btn{margin:0 auto;width:100%;max-width:560px}
   .cta-note{margin-top:10px;font-size:.92rem;color:var(--cream-dim)}
   .cta-note span{color:var(--gold-soft);margin:0 6px}
 
@@ -125,7 +122,7 @@
 
   @media (prefers-reduced-motion:reduce){
     .reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}
-    .zico{animation:none}.zsheet{transition:none}
+    .zbtn{animation:none}.zsheet{transition:none}
   }
 </style>
 </head>
@@ -136,7 +133,7 @@
   <section class="hero"><div class="wrap">
     <p class="eyebrow reveal">אסטרולוגיה · פסיכולוגיה · AI</p>
     <h1 class="reveal">גלי את סודות <span class="accent">הכוכבים</span></h1>
-    <p class="lead reveal"><b>מפת לידה אישית</b> מבוססת AI ו-20 שנות ידע אסטרולוגי — בחינם. גלי מי את באמת, ועם מי באמת מתאים לך.</p>
+    <p class="lead reveal"><b>מפת הלידה שלך</b> מבוססת בינה מלאכותית AI עם מעל 20 שנות ידע אסטרולוגי בכף ידך. גלי מי את באמת, ומי באמת יכול להתאים לך.</p>
   </div></section>
 
   <section class="zodiac"><div class="wrap">
@@ -145,7 +142,7 @@
   </div></section>
 
   <section class="ctaband"><div class="wrap">
-    <a class="btn btn-block reveal" href="https://starsandlove.com/PersonalChart">צרי מפת לידה — עכשיו</a>
+    <a class="btn btn-block reveal" href="https://starsandlove.com/PersonalChart">צרי מפת לידה - עכשיו</a>
     <p class="cta-note reveal">ללא תשלום <span>·</span> תוצאה מוכנה תוך דקה <span>·</span> ניתן לשמירה ושיתוף</p>
   </div></section>
 
@@ -177,7 +174,7 @@
   <section class="final"><div class="wrap">
     <h2 class="reveal">המסע שלך מתחיל<br>במפה אחת</h2>
     <p class="reveal">בחינם, תוך דקה. כל מה שצריך זה תאריך הלידה שלך.</p>
-    <a class="btn reveal" href="https://starsandlove.com/PersonalChart">צרי מפת לידה — עכשיו</a>
+    <a class="btn reveal" href="https://starsandlove.com/PersonalChart">צרי מפת לידה - עכשיו</a>
   </div></section>
 </main>
 
