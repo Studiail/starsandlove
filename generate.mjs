@@ -28,6 +28,11 @@ const GLYPHS = {
   'מאזניים':'♎','עקרב':'♏','קשת':'♐','גדי':'♑','דלי':'♒','דגים':'♓',
 };
 
+// If a zodiac icon SVG is missing or fails to load (e.g. 404 on GitHub Pages
+// due to a filename-case mismatch), this helper swaps the broken <img> for the
+// gold unicode glyph so the cell never renders blank. Injected once per page.
+const ZFAIL_JS = `<script>function zfail(el,g){var s=document.createElement('span');s.className=el.className||'';var w=el.getAttribute('width'),h=el.getAttribute('height');s.style.cssText='display:inline-flex;align-items:center;justify-content:center;color:var(--gold);font-family:var(--serif);font-size:1.8em;line-height:1'+(w?';width:'+w+'px':'')+(h?';height:'+h+'px':'');s.setAttribute('aria-hidden','true');s.textContent=g;el.replaceWith(s);}</script>`;
+
 // Icons are hosted locally in static/icons/<slug>.svg (single source, no external dependency).
 // Set USE_IMAGE_ICONS=0 to fall back to the gold unicode glyphs.
 const USE_IMAGE_ICONS = process.env.USE_IMAGE_ICONS !== '0';
@@ -112,6 +117,7 @@ const footer = () => `
   </div>
   <p class="copy">© Stars &amp; Love · כל הזכויות שמורות</p>
 </div></footer>
+${ZFAIL_JS}
 </body></html>`;
 
 function signPage(sign, rec) {
@@ -135,7 +141,7 @@ function signPage(sign, rec) {
   return head(title, desc, canonical) + `
 <header><div class="wrap"><a href="/"><img src="/logo.png" alt="Stars & Love"></a></div></header>
 <main class="wrap">
-  <img src="/icons/${sign.slug}.svg" alt="מזל ${esc(sign.he)}" width="96" height="96" style="display:block;width:96px;height:96px;border-radius:50%;margin:8px auto 4px">
+  <img src="/icons/${sign.slug}.svg" alt="מזל ${esc(sign.he)}" width="96" height="96" style="display:block;width:96px;height:96px;border-radius:50%;margin:8px auto 4px" onerror="zfail(this,'${GLYPHS[sign.he] || '✦'}')">
   <h1>הורוסקופ שבועי · מזל ${esc(sign.he)}</h1>
   <p class="sub">${rec?.week_start_date ? `${esc(fmtDate(rec.week_start_date))} – ${esc(fmtDate(rec.week_end_date))}` : 'השבוע'}</p>
 
@@ -160,7 +166,7 @@ function indexPage() {
   const desc = 'הורוסקופ שבועי מעודכן לכל 12 המזלות — אהבה, קריירה ויחסים. מבוסס AI ו-20 שנות ידע אסטרולוגי.';
   const canonical = `https://${SITE_DOMAIN}/horoscope/`;
   const grid = SIGNS.map(s =>
-    `<a class="sign" href="/horoscope/${s.slug}/"><img src="/icons/${s.slug}.svg" alt="מזל ${esc(s.he)}" loading="lazy" width="56" height="56"><span class="name">${esc(s.he)}</span></a>`).join('');
+    `<a class="sign" href="/horoscope/${s.slug}/"><img src="/icons/${s.slug}.svg" alt="מזל ${esc(s.he)}" loading="lazy" width="56" height="56" onerror="zfail(this,'${GLYPHS[s.he] || '✦'}')"><span class="name">${esc(s.he)}</span></a>`).join('');
   return head(title, desc, canonical) + `
 <header><div class="wrap"><a href="/"><img src="/logo.png" alt="Stars & Love"></a></div></header>
 <main class="wrap">
@@ -189,6 +195,13 @@ async function copyStatic() {
     for (const f of icons) {
       await fs.copyFile(path.join('static', 'icons', f), path.join(OUT, 'icons', f));
     }
+    // Warn loudly if any sign is missing its icon file (the #1 cause of blank cells).
+    const present = new Set(icons.map(f => f.toLowerCase()));
+    const missing = SIGNS.filter(s => !present.has(`${s.slug}.svg`));
+    if (missing.length) {
+      console.warn(`  ! missing icon files in static/icons/ for: ${missing.map(s => `${s.he} (${s.slug}.svg)`).join(', ')}`);
+      console.warn(`    these cells will fall back to the gold glyph until the SVGs are added (lowercase filenames).`);
+    }
   } catch (e) { console.warn(`could not copy icons: ${e.message}`); }
 }
 
@@ -196,7 +209,7 @@ async function buildLanding(recsBySign) {
   const fallback = (he) => `ההורוסקופ השבועי למזל ${he} מתעדכן כל בוקר. הצצה קצרה למה שמחכה לך השבוע — והגרסה האישית המלאה במפת הלידה שלך.`;
 
   const iconHtml = (s) => USE_IMAGE_ICONS
-    ? `<img class="zico" src="icons/${s.slug}.svg" alt="מזל ${esc(s.he)}" loading="lazy" width="74" height="74">`
+    ? `<img class="zico" src="icons/${s.slug}.svg" alt="מזל ${esc(s.he)}" loading="lazy" width="74" height="74" onerror="zfail(this,'${GLYPHS[s.he] || '✦'}')">`
     : `<span class="zbadge" aria-hidden="true">${GLYPHS[s.he] || '✦'}</span>`;
 
   const buttons = SIGNS.map(s => `
@@ -216,7 +229,7 @@ async function buildLanding(recsBySign) {
         </div>`;
   }).join('');
 
-  const accordion = `<div class="zgrid">${buttons}\n      </div>\n      <div class="zdata-store" hidden>${data}\n      </div>`;
+  const accordion = `<div class="zgrid">${buttons}\n      </div>\n      <div class="zdata-store" hidden>${data}\n      </div>\n      ${ZFAIL_JS}`;
 
   let tpl = await fs.readFile(path.join('static', 'index.html'), 'utf8');
   tpl = tpl.replace('<!--ZODIAC_ACCORDION-->', accordion);
