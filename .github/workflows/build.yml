@@ -2,7 +2,11 @@ name: Build and deploy site
 
 on:
   schedule:
-    - cron: '0 4 * * *'
+    # Weekly — Sundays at 05:00 UTC (= 08:00 Israel in summer / 07:00 in winter).
+    # Base44 regenerates all 12 signs every Sunday ~03:00–04:56 Israel time, so this
+    # runs ~2–3h after generation finishes, in both DST seasons (cron is UTC, no DST).
+    # generate.mjs reads the newest WeeklyHoroscope per sign, so it picks up the fresh week.
+    - cron: '0 5 * * 0'
   workflow_dispatch:
   push:
     branches: [ main ]
