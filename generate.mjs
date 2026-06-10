@@ -201,7 +201,7 @@ function signPage(sign, rec) {
   <div class="cta">
     <h3>רוצה להבין את ההורוסקופ שלך?</h3>
     <p>לא רק לפי המזל - לפי מפת הלידה שלך. ניתוח מפת האישיות בחינם.</p>
-    <a class="btn" href="${CTA_URL}">צרי את מפת הלידה שלך - עכשיו</a>
+    <a class="btn" href="${CTA_URL}">צרי מפת לידה - עכשיו</a>
   </div>
 
   <a class="back" href="/">← לכל המזלות</a>
