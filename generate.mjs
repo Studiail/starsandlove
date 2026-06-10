@@ -42,6 +42,16 @@ const esc = (s = '') => String(s)
 const todayIsrael = () =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date());
 
+// Sunday (YYYY-MM-DD) of the CURRENT week, computed in Israel time.
+// This matches how the Base44 app and the generator define the week, so the
+// static site always displays the same week as the app — never a stray record.
+function currentWeekSundayIL() {
+  const todayIL = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date());
+  const d = new Date(todayIL + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() - d.getUTCDay()); // getUTCDay: 0 = Sunday
+  return d.toISOString().split('T')[0];
+}
+
 const fmtDate = (s) => {
   if (!s) return '';
   try { return new Date(s).toLocaleDateString('he-IL', { day: 'numeric', month: 'long' }); }
@@ -305,16 +315,33 @@ async function main() {
   const skip = process.env.SKIP_FETCH === '1';
   const base44 = skip ? null : createClient({ appId: APP_ID });
 
+  const weekSunday = currentWeekSundayIL();
+  console.log(`Target week (Sunday, Israel time): ${weekSunday}`);
+
   await fs.mkdir(path.join(OUT, 'horoscope'), { recursive: true });
   const recsBySign = {};
   let ok = 0;
+  let usedFallbackWeek = 0;
   for (const sign of SIGNS) {
     let rec = null;
     if (!skip) {
       try {
-        const recs = await base44.entities.WeeklyHoroscope.filter(
-          { zodiac_sign: sign.he }, '-week_start_date', 1);
+        // Prefer the record for the CURRENT week (Sunday) — matches the Base44 app,
+        // so the static site shows the same week and ignores stray/older records.
+        let recs = await base44.entities.WeeklyHoroscope.filter(
+          { zodiac_sign: sign.he, week_start_date: weekSunday }, '-week_start_date', 1);
         rec = (recs && recs[0]) || null;
+
+        if (!rec) {
+          // Fallback: newest available record, but flag that it's not the current week.
+          recs = await base44.entities.WeeklyHoroscope.filter(
+            { zodiac_sign: sign.he }, '-week_start_date', 1);
+          rec = (recs && recs[0]) || null;
+          if (rec) {
+            usedFallbackWeek++;
+            console.warn(`  ~ ${sign.he}: no record for current week ${weekSunday}; falling back to ${rec.week_start_date}`);
+          }
+        }
       } catch (e) {
         console.error(`  ! fetch failed for ${sign.he}: ${e.message}`);
       }
@@ -332,7 +359,11 @@ async function main() {
   await buildLanding(recsBySign);
   await buildSitemap();
 
-  console.log(`Done. ${ok}/12 signs had live data.`);
+  console.log(`Done. ${ok}/12 signs had data (current week ${weekSunday}).`);
+  if (usedFallbackWeek > 0) {
+    console.warn(`${usedFallbackWeek}/12 signs had NO record for the current week and used an older week as fallback.`);
+    console.warn('If this is unexpected, check that the Sunday automations ran and created this week\'s records.');
+  }
   if (ok === 0) {
     console.warn('\nNo live data was fetched. The pages were still built with fallback text.');
     console.warn('Most likely the WeeklyHoroscope entity is not readable anonymously.');
