@@ -199,9 +199,9 @@ function signPage(sign, rec) {
   ${daysHtml ? `<h2 style="font-family:var(--serif);text-align:center;color:var(--cream);margin:28px 0 16px">הורוסקופ יומי</h2>${daysHtml}` : ''}
 
   <div class="cta">
-    <h3>רוצה את ההורוסקופ האישי שלך?</h3>
-    <p>לא רק לפי מזל — לפי מפת הלידה המלאה שלך. בחינם.</p>
-    <a class="btn" href="${CTA_URL}">צרי את מפת הלידה שלך — חינם</a>
+    <h3>רוצה להבין את ההורוסקופ שלך?</h3>
+    <p>לא רק לפי המזל - לפי מפת הלידה שלך. ניתוח מפת האישיות בחינם.</p>
+    <a class="btn" href="${CTA_URL}">צרי את מפת הלידה שלך - עכשיו</a>
   </div>
 
   <a class="back" href="/">← לכל המזלות</a>
