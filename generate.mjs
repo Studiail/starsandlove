@@ -28,9 +28,8 @@ const GLYPHS = {
   'מאזניים':'♎','עקרב':'♏','קשת':'♐','גדי':'♑','דלי':'♒','דגים':'♓',
 };
 
-// If a zodiac icon SVG is missing or fails to load (e.g. 404 on GitHub Pages
-// due to a filename-case mismatch), this helper swaps the broken <img> for the
-// gold unicode glyph so the cell never renders blank. Injected once per page.
+// If a zodiac icon SVG is missing or fails to load, swap the broken <img> for the
+// gold unicode glyph so a cell never renders blank. Injected once per page.
 const ZFAIL_JS = `<script>function zfail(el,g){var s=document.createElement('span');s.className=el.className||'';var w=el.getAttribute('width'),h=el.getAttribute('height');s.style.cssText='display:inline-flex;align-items:center;justify-content:center;color:var(--gold);font-family:var(--serif);font-size:1.8em;line-height:1'+(w?';width:'+w+'px':'')+(h?';height:'+h+'px':'');s.setAttribute('aria-hidden','true');s.textContent=g;el.replaceWith(s);}</script>`;
 
 // Icons are hosted locally in static/icons/<slug>.svg (single source, no external dependency).
@@ -49,43 +48,90 @@ const fmtDate = (s) => {
   catch { return s; }
 };
 
+// Design system aligned 1:1 with the homepage (index.html): same palette,
+// same gold, same Teom/Heebo fonts, same 48px/14px gold button, same starfield.
 const CSS = `
 @font-face{font-family:"Teom";src:url("/teom.woff2") format("woff2"),url("/teom.otf") format("opentype");font-weight:400 900;font-display:swap}
-:root{--navy:#0a1733;--navy-2:#0d1d40;--navy-3:#122651;--gold:#e0a83a;--gold-soft:#eac26f;--cream:#f4ead7;--cream-dim:#cbbfa6;--serif:"Teom","Frank Ruhl Libre",Georgia,serif;--sans:"Heebo",system-ui,sans-serif}
+:root{
+  --bg:#1e2255;--bg-alt:#181c44;--card:#2A2C5C;
+  --gold:#E19F41;--gold-soft:#edc17b;--cream:#f4ead7;--cream-90:rgba(244,234,215,.9);--cream-dim:rgba(244,234,215,.6);
+  --maxw:760px;
+  --serif:"Teom","Frank Ruhl Libre",Georgia,serif;
+  --sans:"Heebo",system-ui,sans-serif;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--sans);background:var(--navy);color:var(--cream);line-height:1.75;-webkit-font-smoothing:antialiased}
-.wrap{max-width:880px;margin:0 auto;padding:0 22px}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);color:var(--cream);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.8;background-image:
+  radial-gradient(1px 1px at 20% 30%,rgba(244,234,215,.7),transparent),
+  radial-gradient(1px 1px at 70% 20%,rgba(244,234,215,.5),transparent),
+  radial-gradient(1.5px 1.5px at 40% 70%,rgba(225,159,65,.6),transparent),
+  radial-gradient(1px 1px at 85% 60%,rgba(244,234,215,.5),transparent),
+  radial-gradient(1px 1px at 15% 85%,rgba(244,234,215,.4),transparent),
+  radial-gradient(1.5px 1.5px at 60% 90%,rgba(225,159,65,.5),transparent)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px;position:relative;z-index:1}
 a{color:inherit;text-decoration:none}
-header{padding:22px 0;text-align:center}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;height:48px;background:var(--gold);color:#2a1a04;
+  font-family:var(--serif);font-weight:700;font-size:1.2rem;padding:0 34px;border-radius:14px;border:none;cursor:pointer;
+  transition:transform .18s,box-shadow .18s,background .18s}
+.btn:hover{transform:translateY(-2px);background:var(--gold-soft)}
+.btn-block{display:flex;width:100%;max-width:560px;margin:0 auto}
+
+header{padding:22px 0 4px;text-align:center;position:relative;z-index:1}
 header img{height:46px}
-h1{font-family:var(--serif);font-weight:900;font-size:clamp(1.9rem,5vw,3rem);text-align:center;margin:18px 0 6px}
-.sub{text-align:center;color:var(--cream-dim);font-weight:300;margin-bottom:30px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px;margin-bottom:40px}
-.sign{display:block;background:var(--navy-3);border:1px solid rgba(224,168,58,.18);border-radius:16px;padding:18px 10px;text-align:center;transition:transform .15s,border-color .15s}
-.sign:hover{transform:translateY(-3px);border-color:var(--gold)}
-.sign img{width:56px;height:56px;border-radius:50%;margin-bottom:8px}
-.sign .name{font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--cream)}
-.card{background:var(--navy-3);border:1px solid rgba(224,168,58,.2);border-radius:18px;padding:26px;margin-bottom:18px}
-.card h2{font-family:var(--serif);font-weight:700;color:var(--gold-soft);font-size:1.2rem;margin-bottom:10px}
-.card p{color:var(--cream);font-weight:300}
-.day{background:var(--navy-2);border-radius:14px;padding:18px 20px;margin-bottom:12px;border-right:3px solid rgba(224,168,58,.4)}
+h1{font-family:var(--serif);font-weight:700;text-align:center;font-size:clamp(2rem,8vw,3rem);margin:14px 0 6px;color:var(--cream)}
+.sub{text-align:center;color:var(--cream-dim);font-weight:300;margin-bottom:26px}
+
+/* zodiac matrix — identical to the homepage floating grid */
+.zgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:370px;margin:0 auto 8px}
+.zbtn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:3px 2px;border-radius:14px;animation:zfloat 4s ease-in-out infinite}
+.zico{width:100%;max-width:64px;aspect-ratio:1;object-fit:contain;display:block}
+.zbtn:nth-child(2){animation-delay:.3s}
+.zbtn:nth-child(3){animation-delay:.6s}
+.zbtn:nth-child(4){animation-delay:.9s}
+.zbtn:nth-child(5){animation-delay:1.2s}
+.zbtn:nth-child(6){animation-delay:.2s}
+.zbtn:nth-child(7){animation-delay:.8s}
+.zbtn:nth-child(8){animation-delay:1.1s}
+.zbtn:nth-child(9){animation-delay:.5s}
+.zbtn:nth-child(10){animation-delay:1.4s}
+.zbtn:nth-child(11){animation-delay:.4s}
+.zbtn:nth-child(12){animation-delay:1s}
+.zname{font-size:.82rem;color:var(--cream-dim);font-weight:500}
+@keyframes zfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+/* CTA band — like the homepage */
+.ctaband{text-align:center;padding:14px 0 6px}
+.cta-note{margin-top:10px;font-size:.92rem;color:var(--cream-dim)}
+.cta-note span{color:var(--gold-soft);margin:0 6px}
+
+/* sign-page CTA card, on the homepage palette */
+.cta{background:var(--card);border-radius:16px;padding:28px 22px;text-align:center;margin:26px auto;max-width:560px}
+.cta h3{font-family:var(--serif);font-weight:700;font-size:1.4rem;color:var(--cream);margin-bottom:8px}
+.cta p{color:var(--cream-90);font-weight:300;margin-bottom:18px}
+
+/* sign-page content blocks, recoloured to the homepage palette */
+.card{background:var(--card);border-radius:16px;padding:22px;margin:0 auto 14px;max-width:560px}
+.card h2{font-family:var(--serif);font-weight:700;color:var(--gold-soft);font-size:1.3rem;margin-bottom:8px}
+.card p{color:var(--cream-90);font-weight:300}
+.day{background:var(--bg-alt);border-radius:14px;padding:18px 20px;margin:0 auto 12px;max-width:560px;border-right:3px solid rgba(225,159,65,.4)}
 .day .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
 .day .name{font-family:var(--serif);font-weight:700;color:var(--cream)}
 .day .focus{font-size:.85rem;color:var(--gold-soft)}
 .day .date{font-size:.85rem;color:var(--cream-dim)}
-.day p{font-size:.97rem;color:var(--cream)}
+.day p{font-size:.97rem;color:var(--cream-90);font-weight:300}
 .energy{margin-top:10px;font-size:.82rem;color:var(--cream-dim)}
 .energy b{color:var(--gold-soft);font-weight:500}
-.cta{background:var(--navy-2);border-radius:20px;padding:36px 26px;text-align:center;margin:34px 0}
-.cta h3{font-family:var(--serif);font-weight:700;font-size:1.5rem;color:var(--cream);margin-bottom:8px}
-.cta p{color:var(--cream-dim);font-weight:300;margin-bottom:22px}
-.btn{display:inline-block;background:var(--gold);color:#3a2606;font-weight:700;font-size:1.1rem;padding:16px 38px;border-radius:999px;transition:transform .15s,background .15s}
-.btn:hover{transform:translateY(-2px);background:var(--gold-soft)}
+
 .back{display:block;text-align:center;color:var(--cream-dim);margin:24px 0;font-size:.92rem}
-footer{background:var(--navy-2);padding:30px 0;text-align:center;margin-top:30px}
+
+footer{background:var(--bg-alt);padding:34px 0 30px;text-align:center;margin-top:30px;position:relative;z-index:1}
 footer .links{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
 footer a{color:var(--cream-dim);font-size:.88rem}
-footer .copy{color:rgba(203,191,166,.5);font-size:.8rem}
+footer .copy{color:rgba(244,234,215,.4);font-size:.8rem}
+
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.zbtn{animation:none}}
 `;
 
 const head = (title, desc, canonical) => `<!DOCTYPE html>
@@ -102,10 +148,11 @@ const head = (title, desc, canonical) => `<!DOCTYPE html>
 <meta property="og:locale" content="he_IL">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>${CSS}</style>
 </head>
-<body>`;
+<body>
+<div class="stars" aria-hidden="true"></div>`;
 
 const footer = () => `
 <footer><div class="wrap">
@@ -141,7 +188,7 @@ function signPage(sign, rec) {
   return head(title, desc, canonical) + `
 <header><div class="wrap"><a href="/"><img src="/logo.png" alt="Stars & Love"></a></div></header>
 <main class="wrap">
-  <img src="/icons/${sign.slug}.svg" alt="מזל ${esc(sign.he)}" width="96" height="96" style="display:block;width:96px;height:96px;border-radius:50%;margin:8px auto 4px" onerror="zfail(this,'${GLYPHS[sign.he] || '✦'}')">
+  <img src="/icons/${sign.slug}.svg" alt="מזל ${esc(sign.he)}" width="84" height="84" style="display:block;width:84px;height:84px;margin:8px auto 4px" onerror="zfail(this,'${GLYPHS[sign.he] || '✦'}')">
   <h1>הורוסקופ שבועי · מזל ${esc(sign.he)}</h1>
   <p class="sub">${rec?.week_start_date ? `${esc(fmtDate(rec.week_start_date))} – ${esc(fmtDate(rec.week_end_date))}` : 'השבוע'}</p>
 
@@ -157,7 +204,7 @@ function signPage(sign, rec) {
     <a class="btn" href="${CTA_URL}">צרי את מפת הלידה שלך — חינם</a>
   </div>
 
-  <a class="back" href="/horoscope/">← לכל המזלות</a>
+  <a class="back" href="/">← לכל המזלות</a>
 </main>` + footer();
 }
 
@@ -165,18 +212,21 @@ function indexPage() {
   const title = 'הורוסקופ שבועי לכל המזלות | Stars & Love';
   const desc = 'הורוסקופ שבועי מעודכן לכל 12 המזלות — אהבה, קריירה ויחסים. מבוסס AI ו-20 שנות ידע אסטרולוגי.';
   const canonical = `https://${SITE_DOMAIN}/horoscope/`;
-  const grid = SIGNS.map(s =>
-    `<a class="sign" href="/horoscope/${s.slug}/"><img src="/icons/${s.slug}.svg" alt="מזל ${esc(s.he)}" loading="lazy" width="56" height="56" onerror="zfail(this,'${GLYPHS[s.he] || '✦'}')"><span class="name">${esc(s.he)}</span></a>`).join('');
+  const matrix = SIGNS.map(s => `
+        <a class="zbtn" href="/horoscope/${s.slug}/">
+          <img class="zico" src="/icons/${s.slug}.svg" alt="מזל ${esc(s.he)}" loading="lazy" width="74" height="74" onerror="zfail(this,'${GLYPHS[s.he] || '✦'}')">
+          <span class="zname">${esc(s.he)}</span>
+        </a>`).join('');
   return head(title, desc, canonical) + `
 <header><div class="wrap"><a href="/"><img src="/logo.png" alt="Stars & Love"></a></div></header>
 <main class="wrap">
   <h1>הורוסקופ שבועי</h1>
   <p class="sub">בחרי מזל וגלי מה מחכה לך השבוע</p>
-  <div class="grid">${grid}</div>
-  <div class="cta">
-    <h3>מעבר להורוסקופ — גלי מי את באמת</h3>
-    <p>מפת לידה אישית מלאה, בחינם.</p>
-    <a class="btn" href="${CTA_URL}">צרי את מפת הלידה שלך — חינם</a>
+  <div class="zgrid">${matrix}
+      </div>
+  <div class="ctaband">
+    <a class="btn btn-block" href="${CTA_URL}">צרי מפת לידה - עכשיו</a>
+    <p class="cta-note">מעבר להורוסקופ — מפת לידה אישית מלאה <span>·</span> בחינם</p>
   </div>
 </main>` + footer();
 }
@@ -195,7 +245,6 @@ async function copyStatic() {
     for (const f of icons) {
       await fs.copyFile(path.join('static', 'icons', f), path.join(OUT, 'icons', f));
     }
-    // Warn loudly if any sign is missing its icon file (the #1 cause of blank cells).
     const present = new Set(icons.map(f => f.toLowerCase()));
     const missing = SIGNS.filter(s => !present.has(`${s.slug}.svg`));
     if (missing.length) {
