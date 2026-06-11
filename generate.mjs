@@ -122,23 +122,23 @@ h1{font-family:var(--serif);font-weight:700;text-align:center;font-size:clamp(1.
 
 /* sign-page CTA card, on the homepage palette */
 .cta{background:var(--card);border-radius:16px;padding:28px 22px;text-align:center;margin:26px auto;max-width:560px}
-.cta h3{font-family:var(--serif);font-weight:700;font-size:1.4rem;color:var(--cream);margin-bottom:8px}
+.cta h3{font-family:var(--serif);font-weight:700;font-size:1.4rem;color:var(--cream);margin-bottom:8px;line-height:1.2}
 .cta p{color:var(--cream-90);font-weight:300;margin-bottom:18px}
 
 /* sign-page content blocks, recoloured to the homepage palette */
 .card{background:var(--card);border-radius:16px;padding:22px;margin:0 auto 14px;max-width:560px}
 .card h2{font-family:var(--serif);font-weight:700;color:var(--gold-soft);font-size:1.3rem;margin-bottom:8px}
 .card p{color:var(--cream-90);font-weight:300}
-.day{background:var(--bg-alt);border-radius:14px;padding:18px 20px;margin:0 auto 12px;max-width:560px}
-.day .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+.day{background:var(--card);border-radius:14px;padding:18px 20px;margin:0 auto 12px;max-width:560px}
+.day .top{display:flex;justify-content:flex-start;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
 .day .name{font-family:var(--serif);font-weight:700;color:var(--cream)}
-.day .focus{font-size:.85rem;color:var(--gold-soft)}
+.day .focus{font-size:.85rem;color:var(--gold-soft);margin-inline-start:auto}
 .day .date{font-size:.85rem;color:var(--cream-dim)}
 .day p{font-size:.97rem;color:var(--cream-90);font-weight:300}
 .energy{margin-top:10px;font-size:.82rem;color:var(--cream-dim)}
 .energy b{color:var(--gold-soft);font-weight:500}
 
-.back{display:block;text-align:center;color:var(--cream-dim);margin:24px 0;font-size:.92rem}
+.back{display:block;text-align:center;color:var(--gold);margin:24px 0;font-size:.92rem;font-family:var(--serif)}
 
 footer{background:var(--bg-alt);padding:34px 0 30px;text-align:center;margin-top:30px;position:relative;z-index:1}
 footer .links{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
@@ -210,15 +210,15 @@ function signPage(sign, rec) {
   ${rec?.planetary_highlights ? `<div class="card"><h2>הדגשים הפלנטריים</h2><p>${esc(rec.planetary_highlights)}</p></div>` : ''}
   ${rec?.lucky_day ? `<div class="card"><h2>היום המוצלח</h2><p>${esc(rec.lucky_day)}</p></div>` : ''}
 
-  ${daysHtml ? `<h2 style="font-family:var(--serif);text-align:center;color:var(--cream);margin:28px 0 16px">הורוסקופ יומי</h2>${daysHtml}` : ''}
+  ${daysHtml ? `<h2 style="font-family:var(--serif);text-align:right;color:var(--cream);margin:28px 0 16px">הורוסקופ יומי</h2>${daysHtml}` : ''}
 
   <div class="cta">
-    <h3>רוצה להבין את ההורוסקופ שלך?</h3>
+    <h3>רוצה להבין לעומק את ההורוסקופ שלך?</h3>
     <p>לא רק לפי המזל - לפי מפת הלידה שלך. ניתוח מפת האישיות בחינם.</p>
     <a class="btn" href="${CTA_URL}">צרי מפת לידה - עכשיו</a>
   </div>
 
-  <a class="back" href="/">← לכל המזלות</a>
+  <a class="back" href="/">לכל המזלות</a>
 </main>` + footer();
 }
 
