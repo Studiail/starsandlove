@@ -94,9 +94,9 @@ h1{font-family:var(--serif);font-weight:700;text-align:center;font-size:clamp(2r
 .sub{text-align:center;color:var(--cream-dim);font-weight:300;margin-bottom:26px}
 
 /* zodiac matrix — identical to the homepage floating grid */
-.zgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:370px;margin:0 auto 8px}
+.zgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:440px;margin:0 auto 8px}
 .zbtn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:3px 2px;border-radius:14px;animation:zfloat 4s ease-in-out infinite}
-.zico{width:100%;max-width:64px;aspect-ratio:1;object-fit:contain;display:block}
+.zico{width:100%;max-width:78px;aspect-ratio:1;object-fit:contain;display:block}
 .zbtn:nth-child(2){animation-delay:.3s}
 .zbtn:nth-child(3){animation-delay:.6s}
 .zbtn:nth-child(4){animation-delay:.9s}
@@ -110,9 +110,11 @@ h1{font-family:var(--serif);font-weight:700;text-align:center;font-size:clamp(2r
 .zbtn:nth-child(12){animation-delay:1s}
 .zname{font-size:.82rem;color:var(--gold);font-weight:700;font-family:var(--sans)}
 @keyframes zfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media(min-width:680px){.zgrid{grid-template-columns:repeat(6,1fr);max-width:none}}
 
 /* CTA band — like the homepage */
 .ctaband{text-align:center;padding:14px 0 6px}
+.ctaband .btn{margin:0 auto;width:100%;max-width:360px}
 .cta-note{margin-top:10px;font-size:.92rem;color:var(--cream-dim)}
 .cta-note span{color:var(--gold-soft);margin:0 6px}
 
@@ -243,7 +245,7 @@ function indexPage() {
 
 async function copyStatic() {
   await fs.mkdir(OUT, { recursive: true });
-  for (const f of ['logo.svg', 'teom.woff2', 'teom.otf', 'story.png']) {
+  for (const f of ['logo.svg', 'astro_gold.svg', 'teom.woff2', 'teom.otf', 'story.png']) {
     try { await fs.copyFile(path.join('static', f), path.join(OUT, f)); }
     catch (e) { console.warn(`could not copy static/${f}: ${e.message}`); }
   }
