@@ -90,8 +90,10 @@ a{color:inherit;text-decoration:none}
 
 header{padding:22px 0 4px;text-align:center;position:relative;z-index:1}
 header img{height:46px}
-h1{font-family:var(--serif);font-weight:700;text-align:center;font-size:clamp(2rem,8vw,3rem);margin:14px 0 6px;color:var(--cream)}
+h1{font-family:var(--serif);font-weight:700;text-align:center;font-size:clamp(1.7rem,7.5vw,3rem);margin:14px 0 6px;color:var(--cream);white-space:nowrap}
+.zh-week{color:var(--gold)}
 .sub{text-align:center;color:var(--cream-dim);font-weight:300;margin-bottom:26px}
+.eyebrow{color:var(--gold-soft);font-weight:500;letter-spacing:3px;font-size:.82rem;text-align:center;margin:18px 0 2px}
 
 /* zodiac matrix — identical to the homepage floating grid */
 .zgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:440px;margin:0 auto 8px}
@@ -127,7 +129,7 @@ h1{font-family:var(--serif);font-weight:700;text-align:center;font-size:clamp(2r
 .card{background:var(--card);border-radius:16px;padding:22px;margin:0 auto 14px;max-width:560px}
 .card h2{font-family:var(--serif);font-weight:700;color:var(--gold-soft);font-size:1.3rem;margin-bottom:8px}
 .card p{color:var(--cream-90);font-weight:300}
-.day{background:var(--bg-alt);border-radius:14px;padding:18px 20px;margin:0 auto 12px;max-width:560px;border-right:3px solid rgba(225,159,65,.4)}
+.day{background:var(--bg-alt);border-radius:14px;padding:18px 20px;margin:0 auto 12px;max-width:560px}
 .day .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
 .day .name{font-family:var(--serif);font-weight:700;color:var(--cream)}
 .day .focus{font-size:.85rem;color:var(--gold-soft)}
@@ -198,10 +200,10 @@ function signPage(sign, rec) {
     </div>`).join('');
 
   return head(title, desc, canonical) + `
-<header><div class="wrap"><a href="/"><img src="/logo.svg" alt="Stars & Love"></a></div></header>
 <main class="wrap">
+  <p class="eyebrow">אסטרולוגיה · פסיכולוגיה · AI</p>
   <img src="/icons/${sign.slug}.svg" alt="מזל ${esc(sign.he)}" width="84" height="84" style="display:block;width:84px;height:84px;margin:8px auto 4px" onerror="zfail(this,'${GLYPHS[sign.he] || '✦'}')">
-  <h1>הורוסקופ שבועי · מזל ${esc(sign.he)}</h1>
+  <h1>מזל ${esc(sign.he)} · <span class="zh-week">השבוע</span></h1>
   <p class="sub">${rec?.week_start_date ? `${esc(fmtDate(rec.week_start_date))} – ${esc(fmtDate(rec.week_end_date))}` : 'השבוע'}</p>
 
   <div class="card"><h2>סיכום השבוע</h2><p>${esc(summary)}</p></div>
