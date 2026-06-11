@@ -46,6 +46,7 @@
   .accent{color:var(--gold)}
   .lead{font-size:clamp(1.02rem,3.8vw,1.25rem);color:var(--cream-90);font-weight:300;max-width:540px;margin:0 auto}
   .lead b{color:var(--cream);font-weight:500}
+  @media(min-width:760px){h1{font-size:4.35rem;white-space:nowrap}}
 
   .zodiac{padding:12px 0 2px}
   .zsub{text-align:center;color:var(--cream-dim);font-weight:300;margin-bottom:10px}
@@ -66,6 +67,7 @@
   .zbtn:nth-child(12){animation-delay:1s}
   .zname{font-size:.82rem;color:var(--gold);font-weight:700;font-family:var(--sans)}
   @keyframes zfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  @media(min-width:680px){.zgrid{grid-template-columns:repeat(6,1fr);max-width:none}}
 
   .ctaband{text-align:center;padding:14px 0 32px}
   .ctaband .btn{margin:0 auto;width:100%;max-width:360px}
@@ -95,6 +97,8 @@
 
   .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;text-align:center}
   .pillar .big{font-family:var(--serif);font-weight:900;font-size:2.2rem;color:var(--gold);margin-bottom:4px}
+  .pillar .big .cr{color:var(--cream)}
+  .pillar .big .astro{height:2.6rem;width:auto;display:inline-block;vertical-align:middle}
   .pillar p{font-weight:500;color:var(--cream)}
   .pillar small{display:block;color:var(--cream-dim);font-weight:300;margin-top:2px}
 
@@ -168,14 +172,14 @@
 
   <section class="band"><div class="wrap">
     <div class="pillars">
-      <div class="pillar reveal"><div class="big">+20</div><p>שנות ידע אסטרולוגי</p><small>מאחורי כל ניתוח והתאמה זוגית</small></div>
-      <div class="pillar reveal"><div class="big">AI</div><p>שקורא את המפה שלך</p><small>עושה סדר ומוצא מה שקשה לראות לבד</small></div>
-      <div class="pillar reveal"><div class="big">✦</div><p>אסטרולוגיה + פסיכולוגיה</p><small>כי אהבה וחיבור זה לא רק מזל</small></div>
+      <div class="pillar reveal"><div class="big"><span class="cr">+</span>20</div><p>שנות ידע אסטרולוגי</p><small>מאחורי כל ניתוח והתאמה זוגית</small></div>
+      <div class="pillar reveal"><div class="big">A<span class="cr">I</span></div><p>שקורא את המפה שלך</p><small>עושה סדר ומוצא מה שקשה לראות לבד</small></div>
+      <div class="pillar reveal"><div class="big"><img class="astro" src="astro_gold.svg" alt=""></div><p>אסטרולוגיה + פסיכולוגיה</p><small>כי אהבה וחיבור זה לא רק מזל</small></div>
     </div>
   </div></section>
 
   <section class="final"><div class="wrap">
-    <h2 class="reveal">המסע שלך מתחיל עכשיו</h2>
+    <h2 class="reveal">המסע שלך מתחיל כאן</h2>
     <p class="reveal">הכרת האישיות שלך תוך דקה. כל מה שאת צריכה זה את תאריך הלידה שלך.</p>
     <a class="btn reveal" href="https://starsandlove.com/PersonalChart">צרי מפת לידה - עכשיו</a>
   </div></section>
