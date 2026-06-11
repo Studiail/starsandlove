@@ -83,7 +83,7 @@ body{font-family:var(--sans);color:var(--cream);background:var(--bg);line-height
 a{color:inherit;text-decoration:none}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;height:48px;background:var(--gold);color:#2a1a04;
-  font-family:var(--serif);font-weight:700;font-size:1.2rem;padding:0 34px;border-radius:14px;border:none;cursor:pointer;
+  font-family:var(--serif);font-weight:700;font-size:1.05rem;padding:0 34px;border-radius:14px;border:none;cursor:pointer;
   transition:transform .18s,box-shadow .18s,background .18s}
 .btn:hover{transform:translateY(-2px);background:var(--gold-soft)}
 .btn-block{display:flex;width:100%;max-width:560px;margin:0 auto}
@@ -196,7 +196,7 @@ function signPage(sign, rec) {
     </div>`).join('');
 
   return head(title, desc, canonical) + `
-<header><div class="wrap"><a href="/"><img src="/logo.png" alt="Stars & Love"></a></div></header>
+<header><div class="wrap"><a href="/"><img src="/logo.svg" alt="Stars & Love"></a></div></header>
 <main class="wrap">
   <img src="/icons/${sign.slug}.svg" alt="מזל ${esc(sign.he)}" width="84" height="84" style="display:block;width:84px;height:84px;margin:8px auto 4px" onerror="zfail(this,'${GLYPHS[sign.he] || '✦'}')">
   <h1>הורוסקופ שבועי · מזל ${esc(sign.he)}</h1>
@@ -228,7 +228,7 @@ function indexPage() {
           <span class="zname">${esc(s.he)}</span>
         </a>`).join('');
   return head(title, desc, canonical) + `
-<header><div class="wrap"><a href="/"><img src="/logo.png" alt="Stars & Love"></a></div></header>
+<header><div class="wrap"><a href="/"><img src="/logo.svg" alt="Stars & Love"></a></div></header>
 <main class="wrap">
   <h1>הורוסקופ שבועי</h1>
   <p class="sub">בחרי מזל וגלי מה מחכה לך השבוע</p>
@@ -243,7 +243,7 @@ function indexPage() {
 
 async function copyStatic() {
   await fs.mkdir(OUT, { recursive: true });
-  for (const f of ['logo.png', 'teom.woff2', 'teom.otf', 'story.png']) {
+  for (const f of ['logo.svg', 'teom.woff2', 'teom.otf', 'story.png']) {
     try { await fs.copyFile(path.join('static', f), path.join(OUT, f)); }
     catch (e) { console.warn(`could not copy static/${f}: ${e.message}`); }
   }
