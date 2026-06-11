@@ -108,7 +108,7 @@ h1{font-family:var(--serif);font-weight:700;text-align:center;font-size:clamp(2r
 .zbtn:nth-child(10){animation-delay:1.4s}
 .zbtn:nth-child(11){animation-delay:.4s}
 .zbtn:nth-child(12){animation-delay:1s}
-.zname{font-size:.82rem;color:var(--cream-dim);font-weight:500}
+.zname{font-size:.82rem;color:var(--gold);font-weight:700;font-family:var(--sans)}
 @keyframes zfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 
 /* CTA band — like the homepage */
@@ -282,7 +282,7 @@ async function buildLanding(recsBySign) {
     const summary = (rec && rec.weekly_summary) ? rec.weekly_summary : fallback(s.he);
     return `
         <div class="zdata" id="zd-${s.slug}" hidden>
-          <h4>מזל ${esc(s.he)} · השבוע</h4>
+          <h4>מזל ${esc(s.he)} · <span class="zh-week">השבוע</span></h4>
           <p>${esc(summary)} <a class="zmore" href="/horoscope/${s.slug}/">עוד...</a></p>
           <a class="btn btn-block" href="${CTA_URL}">צרי מפת לידה - עכשיו</a>
         </div>`;
