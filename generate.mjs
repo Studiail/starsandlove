@@ -5,8 +5,14 @@ import path from 'node:path';
 const APP_ID      = process.env.BASE44_APP_ID || '89192500';
 const SITE_DOMAIN = process.env.SITE_DOMAIN   || 'starsandlove.co.il';
 const APP_URL     = (process.env.APP_URL      || 'https://starsandlove.com').replace(/\/$/, '');
-const CTA_URL     = `${APP_URL}/PersonalChart`;
+const CTA_BASE    = `${APP_URL}/PersonalChart`;
 const OUT         = 'public';
+
+// Build the CTA URL with context params, so .com can pre-fill the sign and we can
+// measure the funnel source. The query string is HTML-escaped at each call site.
+const ctaUrl = (params) => `${CTA_BASE}?${new URLSearchParams(params).toString()}`;
+const ctaSign = (slug) => ctaUrl({ sign: slug, utm_source: 'coil', utm_medium: 'funnel', utm_campaign: 'horoscope_sign' });
+const ctaHome = () => ctaUrl({ utm_source: 'coil', utm_medium: 'funnel', utm_campaign: 'horoscope_home' });
 
 const SIGNS = [
   { he: 'טלה',    slug: 'aries' },
@@ -215,7 +221,7 @@ function signPage(sign, rec) {
   <div class="cta">
     <h3>רוצה להבין לעומק את ההורוסקופ שלך?</h3>
     <p>לא רק לפי המזל - לפי מפת הלידה שלך. ניתוח מפת האישיות בחינם.</p>
-    <a class="btn" href="${CTA_URL}">צרי מפת לידה - עכשיו</a>
+    <a class="btn" href="${esc(ctaSign(sign.slug))}">צרי מפת לידה - עכשיו</a>
   </div>
 
   <a class="back" href="/">לכל המזלות</a>
@@ -239,7 +245,7 @@ function indexPage() {
   <div class="zgrid">${matrix}
       </div>
   <div class="ctaband">
-    <a class="btn btn-block" href="${CTA_URL}">צרי מפת לידה - עכשיו</a>
+    <a class="btn btn-block" href="${esc(ctaHome())}">צרי מפת לידה - עכשיו</a>
     <p class="cta-note">מעבר להורוסקופ — מפת לידה אישית מלאה <span>·</span> בחינם</p>
   </div>
 </main>` + footer();
@@ -288,7 +294,7 @@ async function buildLanding(recsBySign) {
         <div class="zdata" id="zd-${s.slug}" hidden>
           <h4>מזל ${esc(s.he)} · <span class="zh-week">השבוע</span></h4>
           <p>${esc(summary)} <a class="zmore" href="/horoscope/${s.slug}/">עוד...</a></p>
-          <a class="btn btn-block" href="${CTA_URL}">צרי מפת לידה - עכשיו</a>
+          <a class="btn btn-block" href="${esc(ctaHome())}">צרי מפת לידה - עכשיו</a>
         </div>`;
   }).join('');
 
