@@ -8,10 +8,11 @@ const APP_URL     = (process.env.APP_URL      || 'https://starsandlove.com').rep
 const CTA_BASE    = `${APP_URL}/PersonalChart`;
 const OUT         = 'public';
 
-// Build the CTA URL with context params, so .com can pre-fill the sign and we can
-// measure the funnel source. The query string is HTML-escaped at each call site.
+// Build the CTA URL with funnel attribution params. The destination (PersonalChart,
+// the catalog) does NOT read the sign — per-sign attribution is carried in utm_content
+// so GA4 can report which sign drove the click. The query string is HTML-escaped at each call site.
 const ctaUrl = (params) => `${CTA_BASE}?${new URLSearchParams(params).toString()}`;
-const ctaSign = (slug) => ctaUrl({ sign: slug, utm_source: 'coil', utm_medium: 'funnel', utm_campaign: 'horoscope_sign' });
+const ctaSign = (slug) => ctaUrl({ utm_source: 'coil', utm_medium: 'funnel', utm_campaign: 'horoscope_sign', utm_content: slug });
 const ctaHome = () => ctaUrl({ utm_source: 'coil', utm_medium: 'funnel', utm_campaign: 'horoscope_home' });
 
 const SIGNS = [
@@ -294,7 +295,7 @@ async function buildLanding(recsBySign) {
         <div class="zdata" id="zd-${s.slug}" hidden>
           <h4>מזל ${esc(s.he)} · <span class="zh-week">השבוע</span></h4>
           <p>${esc(summary)} <a class="zmore" href="/horoscope/${s.slug}/">עוד...</a></p>
-          <a class="btn btn-block" href="${esc(ctaHome())}">צרי מפת לידה - עכשיו</a>
+          <a class="btn btn-block" href="${esc(ctaSign(s.slug))}">צרי מפת לידה - עכשיו</a>
         </div>`;
   }).join('');
 
