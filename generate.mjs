@@ -8,6 +8,24 @@ const APP_URL     = (process.env.APP_URL      || 'https://starsandlove.com').rep
 const CTA_BASE    = `${APP_URL}/PersonalChart`;
 const OUT         = 'public';
 
+// GA4 (shared property with .com for cross-domain). Public Measurement ID — not a secret.
+// Cross-domain is enabled in the GA4 UI ("Configure your domains": co.il + .com).
+const GA4_ID = process.env.GA4_ID || 'G-5CDSZ6D135';
+const ANALYTICS_HEAD = GA4_ID ? `
+<!-- Google tag (gtag.js) — GA4 shared property, cross-domain co.il + .com -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=${GA4_ID}"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+  gtag('js',new Date());
+  gtag('config','${GA4_ID}');
+  // Funnel CTA clicks (links to the .com catalog) → GA4 event with campaign + sign.
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a[href*="/PersonalChart"]');
+    if(!a)return;
+    try{var u=new URL(a.href);gtag('event','cta_click',{cta_campaign:u.searchParams.get('utm_campaign')||'',cta_sign:u.searchParams.get('utm_content')||''});}catch(_){}
+  },true);
+</script>` : '';
+
 // Build the CTA URL with funnel attribution params. The destination (PersonalChart,
 // the catalog) does NOT read the sign — per-sign attribution is carried in utm_content
 // so GA4 can report which sign drove the click. The query string is HTML-escaped at each call site.
@@ -159,7 +177,7 @@ const head = (title, desc, canonical) => `<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">${ANALYTICS_HEAD}
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <link rel="canonical" href="${canonical}">
@@ -303,6 +321,7 @@ async function buildLanding(recsBySign) {
 
   let tpl = await fs.readFile(path.join('static', 'index.html'), 'utf8');
   tpl = tpl.replace('<!--ZODIAC_ACCORDION-->', accordion);
+  tpl = tpl.replace('<!--ANALYTICS-->', ANALYTICS_HEAD);
   await fs.writeFile(path.join(OUT, 'index.html'), tpl);
 }
 
