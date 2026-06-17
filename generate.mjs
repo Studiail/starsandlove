@@ -234,6 +234,18 @@ ${SITE_SCHEMA}${extraHead}
 <body>
 <div class="stars" aria-hidden="true"></div>`;
 
+const COOKIE_BANNER = `
+<div id="ck-banner" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--bg-alt);border-top:1px solid rgba(244,234,215,.15);padding:14px 18px">
+  <div style="max-width:760px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center">
+    <span style="color:var(--cream-90);font-size:.9rem">אנו משתמשים בעוגיות לשיפור החוויה ולמדידת שימוש. <a href="${APP_URL}/Privacy" style="color:var(--gold-soft);text-decoration:underline">מדיניות הפרטיות</a></span>
+    <button type="button" onclick="ckOk()" style="background:var(--gold);color:#2a1a04;border:none;border-radius:12px;padding:8px 22px;font-family:var(--serif);font-weight:700;cursor:pointer">הבנתי</button>
+  </div>
+</div>
+<script>
+  function ckOk(){try{localStorage.setItem('ck_ok','1')}catch(e){}var b=document.getElementById('ck-banner');if(b)b.style.display='none';}
+  (function(){try{if(localStorage.getItem('ck_ok'))return;}catch(e){}var b=document.getElementById('ck-banner');if(b)b.style.display='block';})();
+</script>`;
+
 const footer = () => `
 <footer><div class="wrap">
   <div class="links">
@@ -241,9 +253,12 @@ const footer = () => `
     <a href="/horoscope/">הורוסקופ שבועי</a>
     <a href="${APP_URL}/About">אודות</a>
     <a href="${APP_URL}/Privacy">פרטיות</a>
+    <a href="${APP_URL}/Terms">תנאי שימוש</a>
+    <a href="${APP_URL}/Accessibility">נגישות</a>
   </div>
   <p class="copy">© Stars &amp; Love · כל הזכויות שמורות</p>
 </div></footer>
+${COOKIE_BANNER}
 ${ZFAIL_JS}
 </body></html>`;
 
@@ -391,6 +406,7 @@ async function buildLanding(recsBySign) {
   let tpl = await fs.readFile(path.join('static', 'index.html'), 'utf8');
   tpl = tpl.replace('<!--ZODIAC_ACCORDION-->', accordion);
   tpl = tpl.replace('<!--ANALYTICS-->', ANALYTICS_HEAD);
+  tpl = tpl.replace('<!--COOKIE_BANNER-->', COOKIE_BANNER);
   await fs.writeFile(path.join(OUT, 'index.html'), tpl);
 }
 
