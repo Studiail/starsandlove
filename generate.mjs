@@ -203,7 +203,17 @@ footer .copy{color:rgba(244,234,215,.4);font-size:.8rem}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.zbtn{animation:none}}
 `;
 
-const head = (title, desc, canonical) => `<!DOCTYPE html>
+// ── Structured data (JSON-LD) ──
+const jsonLd = (obj) => `<script type="application/ld+json">${JSON.stringify(obj)}</script>`;
+const SITE_SCHEMA = jsonLd({
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'Organization', '@id': `https://${SITE_DOMAIN}/#org`, name: 'Stars & Love', url: `https://${SITE_DOMAIN}/`, logo: `https://${SITE_DOMAIN}/logo.svg`, description: 'הורוסקופ שבועי לכל המזלות ומפת לידה אישית מבוססת AI.' },
+    { '@type': 'WebSite', '@id': `https://${SITE_DOMAIN}/#website`, name: 'Stars & Love', url: `https://${SITE_DOMAIN}/`, inLanguage: 'he-IL', publisher: { '@id': `https://${SITE_DOMAIN}/#org` } },
+  ],
+});
+
+const head = (title, desc, canonical, extraHead = '') => `<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -219,6 +229,7 @@ const head = (title, desc, canonical) => `<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>${CSS}</style>
+${SITE_SCHEMA}${extraHead}
 </head>
 <body>
 <div class="stars" aria-hidden="true"></div>`;
@@ -254,7 +265,31 @@ function signPage(sign, rec) {
       ${d.energy_level ? `<div class="energy">אנרגיה: <b>${esc(d.energy_level)}/10</b></div>` : ''}
     </div>`).join('');
 
-  return head(title, desc, canonical) + `
+  const ev = EVERGREEN[sign.slug];
+  const faqs = [
+    { q: `כל כמה זמן מתעדכן ההורוסקופ של מזל ${sign.he}?`, a: `ההורוסקופ השבועי של מזל ${sign.he} מתעדכן כל שבוע, עם תחזית לכל יום מימות השבוע.` },
+    { q: `האם ההורוסקופ של מזל ${sign.he} מבוסס על מפת הלידה שלי?`, a: `ההורוסקופ השבועי הוא כללי למזל ${sign.he}. לניתוח אישי מלא לפי מפת הלידה שלך אפשר ליצור מפת לידה בחינם ב-Stars & Love.` },
+  ];
+  if (ev) faqs.push({ q: `מהם המאפיינים של מזל ${sign.he}?`, a: ev.personality });
+
+  const faqHtml = `
+  <h2 style="font-family:var(--serif);text-align:right;color:var(--cream);margin:28px 0 16px">שאלות נפוצות</h2>
+  ${faqs.map(f => `<div class="card"><h2>${esc(f.q)}</h2><p>${esc(f.a)}</p></div>`).join('')}`;
+
+  const breadcrumbSchema = jsonLd({
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'דף הבית', item: `https://${SITE_DOMAIN}/` },
+      { '@type': 'ListItem', position: 2, name: 'הורוסקופ שבועי', item: `https://${SITE_DOMAIN}/horoscope/` },
+      { '@type': 'ListItem', position: 3, name: `מזל ${sign.he}`, item: canonical },
+    ],
+  });
+  const faqSchema = jsonLd({
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  });
+
+  return head(title, desc, canonical, breadcrumbSchema + faqSchema) + `
 <main class="wrap">
   <p class="eyebrow">אסטרולוגיה · פסיכולוגיה · AI</p>
   <img src="/icons/${sign.slug}.svg" alt="מזל ${esc(sign.he)}" width="84" height="84" style="display:block;width:84px;height:84px;margin:8px auto 4px" onerror="zfail(this,'${GLYPHS[sign.he] || '✦'}')">
@@ -268,6 +303,8 @@ function signPage(sign, rec) {
   ${daysHtml ? `<h2 style="font-family:var(--serif);text-align:right;color:var(--cream);margin:28px 0 16px">הורוסקופ יומי</h2>${daysHtml}` : ''}
 
   ${evergreenHtml(sign)}
+
+  ${faqHtml}
 
   <div class="cta">
     <h3>רוצה להבין לעומק את ההורוסקופ שלך?</h3>
@@ -357,6 +394,18 @@ async function buildLanding(recsBySign) {
   await fs.writeFile(path.join(OUT, 'index.html'), tpl);
 }
 
+async function build404() {
+  const html = head('הדף לא נמצא | Stars & Love', 'הדף שחיפשת לא נמצא.', `https://${SITE_DOMAIN}/404.html`) + `
+<main class="wrap" style="text-align:center;padding:60px 0">
+  <p class="eyebrow">Stars &amp; Love</p>
+  <h1 style="font-size:clamp(3rem,12vw,5rem);color:var(--gold)">404</h1>
+  <p class="sub">הדף שחיפשת לא נמצא — אבל הכוכבים עדיין כאן.</p>
+  <div class="ctaband"><a class="btn" href="/">חזרה לדף הבית</a></div>
+  <a class="back" href="/horoscope/">להורוסקופ השבועי</a>
+</main>` + footer();
+  await fs.writeFile(path.join(OUT, '404.html'), html);
+}
+
 async function buildSitemap() {
   const urls = [
     `https://${SITE_DOMAIN}/`,
@@ -420,6 +469,7 @@ async function main() {
   await fs.writeFile(path.join(OUT, 'horoscope', 'index.html'), indexPage());
   await buildLanding(recsBySign);
   await buildSitemap();
+  await build404();
 
   console.log(`Done. ${ok}/12 signs had data (current week ${weekSunday}).`);
   if (usedFallbackWeek > 0) {
