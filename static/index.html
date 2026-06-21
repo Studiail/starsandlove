@@ -69,12 +69,19 @@
   .zname{font-size:.82rem;color:var(--gold);font-weight:700;font-family:var(--sans)}
   @keyframes zfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
   @media(min-width:680px){.zgrid{grid-template-columns:repeat(6,1fr);max-width:none}}
+  /* wide screens: spread + enlarge the zodiac matrix instead of cramming it at 760px */
+  @media(min-width:900px){
+    .intro .zodiac .wrap{max-width:1080px}
+    .zgrid{max-width:1000px;gap:24px}
+    .zico{max-width:112px}
+    .zname{font-size:.95rem}
+  }
 
   .ctaband{text-align:center;padding:14px 0 32px}
-  .ctaband .btn{margin:0 auto;width:100%;max-width:360px}
+  .ctaband .btn{margin:0 auto;width:100%;max-width:300px}
   .cta-note{margin-top:10px;font-size:.82rem;color:var(--cream-dim)}
   .cta-note span{color:var(--gold-soft);margin:0 6px}
-  @media(min-width:760px){.hero{padding:64px 0 28px}.ctaband{padding-top:48px}}
+  @media(min-width:760px){.hero{padding:64px 0 28px}.ctaband{padding-top:48px}.ctaband .btn{max-width:360px}}
 
   /* first screen: keep the primary CTA in the lower third, above the cookie banner */
   .intro{display:flex;flex-direction:column;min-height:100svh}
