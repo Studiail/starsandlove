@@ -32,6 +32,7 @@ const ANALYTICS_HEAD = GA4_ID ? `
 const ctaUrl = (params) => `${CTA_BASE}?${new URLSearchParams(params).toString()}`;
 const ctaSign = (slug) => ctaUrl({ utm_source: 'coil', utm_medium: 'funnel', utm_campaign: 'horoscope_sign', utm_content: slug });
 const ctaHome = () => ctaUrl({ utm_source: 'coil', utm_medium: 'funnel', utm_campaign: 'horoscope_home' });
+const ctaCompat = (slug) => ctaUrl({ utm_source: 'coil', utm_medium: 'funnel', utm_campaign: 'compatibility', utm_content: slug });
 
 const SIGNS = [
   { he: 'טלה',    slug: 'aries' },
@@ -82,6 +83,26 @@ const evergreenHtml = (sign) => {
   <div class="card"><h2>מזל ${sign.he} באהבה</h2><p>${ev.love}</p></div>
   <div class="card"><h2>מזל ${sign.he} בקריירה</h2><p>${ev.career}</p></div>`;
 };
+
+// ── Compatibility (zodiac pairs) — element-based content model ──
+const ELEMENT_PAIRS = {
+  'אש|אש':     { vibe: 'אנרגיה לוהטת', chemistry: 'שני מזלות אש יחד — תשוקה, ספונטניות והרבה ניצוצות. הקשר ביניכם דינמי, נלהב ומלא חיים.', strengths: 'שניכם אמיצים, נלהבים ואוהבי הרפתקאות, ויש ביניכם הבנה אינטואיטיבית של הצורך בחופש ובפעולה.', challenges: 'שני אגו חזקים עלולים להתנגש. כדאי ללמוד להקשיב ולא רק להוביל, ולתעל את האש למטרה משותפת.' },
+  'אדמה|אדמה': { vibe: 'יציבות עמוקה', chemistry: 'שני מזלות אדמה בונים קשר יציב, מעשי ואמין, שבו הביטחון והנאמנות במרכז.', strengths: 'שניכם מעריכים מחויבות ובניית עתיד משותף — קשר שמחזיק לאורך זמן.', challenges: 'יותר מדי שגרה עלולה להפוך משעממת. כדאי להזכיר לעצמכם לפרוץ את השגרה ולהפתיע זה את זה.' },
+  'אוויר|אוויר': { vibe: 'חיבור מנטלי', chemistry: 'שני מזלות אוויר — שיחות אינסופיות, סקרנות ורעיונות. חיבור אינטלקטואלי לפני הכול.', strengths: 'תקשורת זורמת, חופש הדדי וגירוי מחשבתי מתמיד. אתכם אף פעם לא משעמם.', challenges: 'לפעמים חסר עומק רגשי. כדאי לזכור להתחבר גם בלב, לא רק בראש.' },
+  'מים|מים':   { vibe: 'עומק רגשי', chemistry: 'שני מזלות מים — אינטימיות, אמפתיה וחיבור נשמה עמוק. אתם מרגישים זה את זה בלי מילים.', strengths: 'הבנה רגשית יוצאת דופן, נאמנות וקרבה. קשר עוטף ומרגש.', challenges: 'רגשות מציפים עלולים לסחוף. חשוב לשמור על גבולות בריאים ולא לטבוע זה ברגשות זה.' },
+  'אש|אוויר':  { vibe: 'התלקחות', chemistry: 'אש ואוויר מזינים זה את זה — האוויר מלבה את האש. קשר אנרגטי, מלהיב ומלא תנופה.', strengths: 'השראה הדדית, הרפתקה וספונטניות. שניכם אוהבים לחלום וגם לפעול.', challenges: 'שניכם עלולים להתעופף קדימה בלי לעצור. כדאי להוסיף עוגן של יציבות ומחויבות.' },
+  'אדמה|מים':  { vibe: 'טיפוח הדדי', chemistry: 'אדמה ומים — שילוב מזין: המים מעניקים רגש, האדמה מעניקה יציבות. קשר חם ובטוח.', strengths: 'דאגה הדדית, נאמנות ובניית בית. אתם משלימים זה את זה באופן טבעי.', challenges: 'יותר מדי נוחות עלולה להפוך לקיפאון. כדאי לשמור על צמיחה וחידוש.' },
+  'אדמה|אש':   { vibe: 'תשוקה מול זהירות', chemistry: 'אש ואדמה — קצב שונה: האש רוצה לרוץ, האדמה רוצה ביטחון. מתח שיכול להפוך לאיזון מצוין.', strengths: 'האש מביאה התלהבות, האדמה מביאה יציבות — יחד אפשר גם לחלום וגם להגשים.', challenges: 'חוסר סבלנות מול זהירות עלול לתסכל. צריך כבוד הדדי לקצב ולצרכים של כל אחד.' },
+  'אש|מים':    { vibe: 'אש ומים', chemistry: 'אש ומים — משיכה עזה אך מאתגרת, כמו קיטור: אינטנסיבי, מרגש ולעיתים נדיף.', strengths: 'כשזה עובד — שילוב של תשוקה ועומק רגשי, והרבה ללמוד זה מזה.', challenges: 'האש עלולה "לייבש" והמים "לכבות". צריך רגישות הדדית והרבה תקשורת כדי לגשר על הפער.' },
+  'אדמה|אוויר': { vibe: 'מעשי מול מופשט', chemistry: 'אדמה ואוויר — עולמות שונים: האדמה מעשית, האוויר רעיוני. שילוב שמרחיב את שניכם.', strengths: 'האוויר מביא רעיונות, האדמה הופכת אותם למציאות — צוות משלים כשמכבדים את ההבדלים.', challenges: 'קצב וסדר עדיפויות שונים. צריך סבלנות והערכה לדרך החשיבה של הצד השני.' },
+  'אוויר|מים': { vibe: 'ראש מול לב', chemistry: 'אוויר ומים — מפגש בין היגיון לרגש, קשר שמלמד את שניכם איזון בין מחשבה לתחושה.', strengths: 'האוויר מביא פרספקטיבה, המים מביאים עומק — יחד אפשר לבנות הבנה רחבה ועשירה.', challenges: 'האוויר עלול להרגיש "קר", המים "מוצפים". המפתח: לתרגם בין השפה הרגשית לרציונלית.' },
+};
+const elementPair = (e1, e2) => ELEMENT_PAIRS[`${e1}|${e2}`] || ELEMENT_PAIRS[`${e2}|${e1}`];
+
+const COMPAT_PAIRS = [];
+for (let i = 0; i < SIGNS.length; i++)
+  for (let j = i + 1; j < SIGNS.length; j++)
+    COMPAT_PAIRS.push([SIGNS[i], SIGNS[j]]);
 
 // If a zodiac icon SVG is missing or fails to load, swap the broken <img> for the
 // gold unicode glyph so a cell never renders blank. Injected once per page.
@@ -251,6 +272,7 @@ const footer = () => `
   <div class="links">
     <a href="/">דף הבית</a>
     <a href="/horoscope/">הורוסקופ שבועי</a>
+    <a href="/compatibility/">התאמה זוגית</a>
     <a href="${APP_URL}/About">אודות</a>
     <a href="${APP_URL}/Privacy">פרטיות</a>
     <a href="${APP_URL}/Terms">תנאי שימוש</a>
@@ -422,11 +444,85 @@ async function build404() {
   await fs.writeFile(path.join(OUT, '404.html'), html);
 }
 
+function compatPage(a, b) {
+  const elemA = EVERGREEN[a.slug]?.element || '';
+  const elemB = EVERGREEN[b.slug]?.element || '';
+  const ep = elementPair(elemA, elemB) || {};
+  const slug = `${a.slug}-${b.slug}`;
+  const title = `התאמה זוגית: ${a.he} ו${b.he} | Stars & Love`;
+  const desc = (ep.chemistry || `התאמה זוגית בין מזל ${a.he} למזל ${b.he} — אהבה, כימיה ואתגרים.`).slice(0, 155);
+  const canonical = `https://${SITE_DOMAIN}/compatibility/${slug}/`;
+  const breadcrumb = jsonLd({
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'דף הבית', item: `https://${SITE_DOMAIN}/` },
+      { '@type': 'ListItem', position: 2, name: 'התאמה זוגית', item: `https://${SITE_DOMAIN}/compatibility/` },
+      { '@type': 'ListItem', position: 3, name: `${a.he} ו${b.he}`, item: canonical },
+    ],
+  });
+  return head(title, desc, canonical, breadcrumb) + `
+<main class="wrap">
+  <p class="eyebrow">אסטרולוגיה · התאמה זוגית</p>
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 4px">
+    <img src="/icons/${a.slug}.svg" alt="מזל ${esc(a.he)}" width="64" height="64" onerror="zfail(this,'${GLYPHS[a.he] || '✦'}')">
+    <span style="color:var(--gold);font-size:1.6rem">+</span>
+    <img src="/icons/${b.slug}.svg" alt="מזל ${esc(b.he)}" width="64" height="64" onerror="zfail(this,'${GLYPHS[b.he] || '✦'}')">
+  </div>
+  <h1 style="font-size:clamp(1.5rem,6vw,2.4rem)">${esc(a.he)} ו${esc(b.he)}</h1>
+  <p class="sub">${esc(elemA)} ו${esc(elemB)}${ep.vibe ? ` · ${esc(ep.vibe)}` : ''}</p>
+
+  <div class="card"><h2>הכימיה ביניכם</h2><p>${esc(ep.chemistry || '')}</p></div>
+  <div class="card"><h2>נקודות החוזק</h2><p>${esc(ep.strengths || '')}</p></div>
+  <div class="card"><h2>האתגרים</h2><p>${esc(ep.challenges || '')}</p></div>
+
+  <div class="cta">
+    <h3>רוצה לדעת אם זה באמת מתאים?</h3>
+    <p>התאמה אמיתית היא לא רק לפי המזל — אלא לפי מפת הלידה המלאה של שניכם. בדקי התאמה אישית, בחינם.</p>
+    <a class="btn" href="${esc(ctaCompat(slug))}">בדקי התאמה אישית</a>
+    <p class="cta-note" style="margin-top:12px">מחפש/ת גם "${esc(b.he)} ו${esc(a.he)}"? זה אותו צירוף.</p>
+  </div>
+
+  <a class="back" href="/compatibility/">לכל ההתאמות</a>
+</main>` + footer();
+}
+
+async function buildCompatibility() {
+  await fs.mkdir(path.join(OUT, 'compatibility'), { recursive: true });
+  for (const [a, b] of COMPAT_PAIRS) {
+    const dir = path.join(OUT, 'compatibility', `${a.slug}-${b.slug}`);
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(path.join(dir, 'index.html'), compatPage(a, b));
+  }
+  const title = 'התאמה זוגית בין כל המזלות | Stars & Love';
+  const desc = 'התאמה זוגית בין כל 12 המזלות — אהבה, כימיה ואתגרים. גלי עם מי באמת מתאים לך.';
+  const canonical = `https://${SITE_DOMAIN}/compatibility/`;
+  const groups = SIGNS.map(a => {
+    const links = SIGNS.filter(b => b.slug !== a.slug).map(b => {
+      const [x, y] = SIGNS.indexOf(a) < SIGNS.indexOf(b) ? [a, b] : [b, a];
+      return `<a class="zmore" href="/compatibility/${x.slug}-${y.slug}/">${esc(a.he)} ו${esc(b.he)}</a>`;
+    }).join(' · ');
+    return `<div class="card"><h2>מזל ${esc(a.he)}</h2><p style="line-height:2">${links}</p></div>`;
+  }).join('');
+  const html = head(title, desc, canonical) + `
+<main class="wrap">
+  <h1>התאמה זוגית</h1>
+  <p class="sub">בחרי צירוף וגלי את הכימיה, החוזקות והאתגרים</p>
+  ${groups}
+  <div class="ctaband">
+    <a class="btn btn-block" href="${esc(ctaHome())}">בדקי התאמה אישית - עכשיו</a>
+    <p class="cta-note">מעבר למזל — התאמה לפי מפת הלידה המלאה <span>·</span> בחינם</p>
+  </div>
+</main>` + footer();
+  await fs.writeFile(path.join(OUT, 'compatibility', 'index.html'), html);
+}
+
 async function buildSitemap() {
   const urls = [
     `https://${SITE_DOMAIN}/`,
     `https://${SITE_DOMAIN}/horoscope/`,
     ...SIGNS.map(s => `https://${SITE_DOMAIN}/horoscope/${s.slug}/`),
+    `https://${SITE_DOMAIN}/compatibility/`,
+    ...COMPAT_PAIRS.map(([a, b]) => `https://${SITE_DOMAIN}/compatibility/${a.slug}-${b.slug}/`),
   ];
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
     urls.map(u => `  <url><loc>${u}</loc></url>`).join('\n') + `\n</urlset>\n`;
@@ -484,6 +580,7 @@ async function main() {
 
   await fs.writeFile(path.join(OUT, 'horoscope', 'index.html'), indexPage());
   await buildLanding(recsBySign);
+  await buildCompatibility();
   await buildSitemap();
   await build404();
 
