@@ -76,6 +76,12 @@
   .cta-note span{color:var(--gold-soft);margin:0 6px}
   @media(min-width:760px){.hero{padding:64px 0 28px}.ctaband{padding-top:48px}}
 
+  /* first screen: keep the primary CTA in the lower third, above the cookie banner */
+  .intro{display:flex;flex-direction:column;min-height:100svh}
+  .intro .zodiac{flex:1 0 auto;display:flex;flex-direction:column;justify-content:center}
+  .intro .ctaband{padding-bottom:112px}
+  @supports not (height:100svh){.intro{min-height:100vh}}
+
   .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}
   .reveal.in{opacity:1;transform:none}
 
@@ -139,6 +145,7 @@
 <div class="stars" aria-hidden="true"></div>
 
 <main>
+  <div class="intro">
   <section class="hero"><div class="wrap">
     <p class="eyebrow reveal">אסטרולוגיה · פסיכולוגיה · AI</p>
     <h1 class="reveal">גלי את סודות <span class="accent">הכוכבים</span></h1>
@@ -154,6 +161,7 @@
     <a class="btn btn-block reveal" href="https://starsandlove.com/PersonalChart?utm_source=coil&amp;utm_medium=funnel&amp;utm_campaign=horoscope_home">צרי מפת לידה - עכשיו</a>
     <p class="cta-note reveal">ללא תשלום <span>·</span> תוצאה מוכנה תוך דקה <span>·</span> ניתן לשמירה ושיתוף</p>
   </div></section>
+  </div><!-- /.intro -->
 
   <section class="band story"><div class="wrap">
     <h2 class="section-title reveal">מפת הלידה <span class="accent">שלך</span></h2>

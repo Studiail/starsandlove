@@ -258,7 +258,7 @@ ${SITE_SCHEMA}${extraHead}
 const COOKIE_BANNER = `
 <div id="ck-banner" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--bg-alt);border-top:1px solid rgba(244,234,215,.15);padding:14px 18px">
   <div style="max-width:760px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center">
-    <span style="color:var(--cream-90);font-size:.9rem">אנו משתמשים בעוגיות לשיפור החוויה ולמדידת שימוש. <a href="${APP_URL}/Privacy" style="color:var(--gold-soft);text-decoration:underline">מדיניות הפרטיות</a></span>
+    <span style="color:var(--cream-90);font-size:.9rem">אנו משתמשים בעוגיות לשיפור החוויה ולמדידת שימוש. לפרטים נוספים ניתן לעיין ב<a href="${APP_URL}/Privacy" style="color:var(--gold-soft);text-decoration:underline">מדיניות הפרטיות</a>.</span>
     <button type="button" onclick="ckOk()" style="background:var(--gold);color:#2a1a04;border:none;border-radius:12px;padding:8px 22px;font-family:var(--serif);font-weight:700;cursor:pointer">הבנתי</button>
   </div>
 </div>
