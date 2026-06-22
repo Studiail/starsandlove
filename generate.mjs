@@ -26,6 +26,23 @@ const ANALYTICS_HEAD = GA4_ID ? `
   },true);
 </script>` : '';
 
+// Meta Pixel — pre-wired, inert until META_PIXEL_ID is set (repo Variable or env).
+// Once the Business Portfolio block is lifted and a Pixel exists, set META_PIXEL_ID
+// and the base code + PageView fire on every page automatically. No code change needed.
+const META_PIXEL_ID = process.env.META_PIXEL_ID || '';
+const PIXEL_HEAD = META_PIXEL_ID ? `
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','${META_PIXEL_ID}');fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+src="https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1"/></noscript>` : '';
+
 // Build the CTA URL with funnel attribution params. The destination (PersonalChart,
 // the catalog) does NOT read the sign — per-sign attribution is carried in utm_content
 // so GA4 can report which sign drove the click. The query string is HTML-escaped at each call site.
@@ -75,13 +92,17 @@ const evergreenHtml = (sign) => {
   const ev = EVERGREEN[sign.slug];
   if (!ev) return '';
   return `
-  <h2 style="font-family:var(--serif);text-align:right;color:var(--cream);margin:28px 0 16px">על מזל ${sign.he}</h2>
-  <div class="card">
-    <p style="color:var(--gold-soft);font-size:.92rem;margin-bottom:10px">תאריכים: ${ev.dates} <span style="color:var(--cream-dim)">·</span> יסוד: ${ev.element} <span style="color:var(--cream-dim)">·</span> כוכב שולט: ${ev.ruler}</p>
+  <h2 style="font-family:var(--serif);text-align:right;color:var(--cream);margin:28px 0 16px">מאפייני מזל ${sign.he}</h2>
+  <div class="traits">
+    <div class="chips">
+      <span class="chip">${ev.dates}</span>
+      <span class="chip">יסוד ${ev.element}</span>
+      <span class="chip">כוכב שולט · ${ev.ruler}</span>
+    </div>
     <p>${ev.personality}</p>
-  </div>
-  <div class="card"><h2>מזל ${sign.he} באהבה</h2><p>${ev.love}</p></div>
-  <div class="card"><h2>מזל ${sign.he} בקריירה</h2><p>${ev.career}</p></div>`;
+    <div class="sub-block"><h4>${sign.he} באהבה</h4><p>${ev.love}</p></div>
+    <div class="sub-block"><h4>${sign.he} בקריירה</h4><p>${ev.career}</p></div>
+  </div>`;
 };
 
 // ── Compatibility (zodiac pairs) — element-based content model ──
@@ -148,13 +169,24 @@ const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:var(--sans);color:var(--cream);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-.stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.8;background-image:
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.85;background-image:
   radial-gradient(1px 1px at 20% 30%,rgba(244,234,215,.7),transparent),
   radial-gradient(1px 1px at 70% 20%,rgba(244,234,215,.5),transparent),
   radial-gradient(1.5px 1.5px at 40% 70%,rgba(225,159,65,.6),transparent),
   radial-gradient(1px 1px at 85% 60%,rgba(244,234,215,.5),transparent),
   radial-gradient(1px 1px at 15% 85%,rgba(244,234,215,.4),transparent),
-  radial-gradient(1.5px 1.5px at 60% 90%,rgba(225,159,65,.5),transparent)}
+  radial-gradient(1.5px 1.5px at 60% 90%,rgba(225,159,65,.5),transparent);
+  animation:twinkle 5.5s ease-in-out infinite alternate}
+.stars::after{content:"";position:absolute;inset:0;background-image:
+  radial-gradient(1px 1px at 33% 15%,rgba(244,234,215,.6),transparent),
+  radial-gradient(1px 1px at 52% 48%,rgba(244,234,215,.45),transparent),
+  radial-gradient(1.5px 1.5px at 80% 35%,rgba(225,159,65,.5),transparent),
+  radial-gradient(1px 1px at 8% 55%,rgba(244,234,215,.5),transparent),
+  radial-gradient(1px 1px at 90% 78%,rgba(244,234,215,.4),transparent),
+  radial-gradient(1.5px 1.5px at 25% 92%,rgba(225,159,65,.45),transparent);
+  animation:twinkle2 7s ease-in-out infinite alternate}
+@keyframes twinkle{from{opacity:.4}to{opacity:.95}}
+@keyframes twinkle2{from{opacity:.9}to{opacity:.3}}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px;position:relative;z-index:1}
 a{color:inherit;text-decoration:none}
 
@@ -216,12 +248,38 @@ h1{font-family:var(--serif);font-weight:700;text-align:center;font-size:clamp(1.
 
 .back{display:block;text-align:center;color:var(--gold);margin:24px 0;font-size:.92rem;font-family:var(--serif)}
 
-footer{background:var(--bg-alt);padding:34px 0 30px;text-align:center;margin-top:30px;position:relative;z-index:1}
-footer .links{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+footer{background:var(--bg-alt);padding:40px 0 34px;text-align:center;margin-top:30px;position:relative;z-index:1}
+footer .flogo{height:64px;margin:0 auto 16px;display:block}
+footer .links{display:flex;gap:8px 18px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;line-height:1.3}
 footer a{color:var(--cream-dim);font-size:.88rem}
 footer .copy{color:rgba(244,234,215,.4);font-size:.8rem}
 
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.zbtn{animation:none}}
+/* top navigation bar (inner pages) — solves the "stuck, use browser back" problem */
+.nav{position:sticky;top:0;z-index:30;background:rgba(24,28,68,.85);backdrop-filter:blur(8px);border-bottom:1px solid rgba(244,234,215,.1);padding:0}
+.nav-in{display:flex;align-items:center;justify-content:space-between;padding:10px 22px;max-width:980px;margin:0 auto}
+.nav-logo img{height:34px;display:block}
+.nav-links{display:flex;gap:18px}
+.nav-links a{color:var(--cream-90);font-size:.92rem;font-family:var(--serif)}
+.nav-links a:hover{color:var(--gold-soft)}
+
+/* sign-page traits panel — distinct, richer look vs the daily reading cards */
+.traits{background:linear-gradient(150deg,rgba(225,159,65,.14),rgba(42,44,92,.65));border:1px solid rgba(225,159,65,.3);border-radius:18px;padding:24px 22px;margin:0 auto 16px;max-width:560px}
+.traits>h3{font-family:var(--serif);font-weight:700;color:var(--gold);font-size:1.35rem;margin-bottom:12px}
+.traits .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.traits .chip{background:rgba(225,159,65,.18);color:var(--gold-soft);border:1px solid rgba(225,159,65,.35);border-radius:999px;padding:5px 14px;font-size:.85rem;font-weight:500}
+.traits p{color:var(--cream-90);font-weight:300}
+.traits .sub-block{margin-top:16px;padding-top:14px;border-top:1px solid rgba(244,234,215,.1)}
+.traits .sub-block h4{font-family:var(--serif);font-weight:700;color:var(--gold-soft);font-size:1.05rem;margin-bottom:4px}
+
+/* FAQ — expand/collapse, closed by default */
+.faq{background:var(--card);border-radius:14px;margin:0 auto 10px;max-width:560px;overflow:hidden}
+.faq summary{list-style:none;cursor:pointer;padding:16px 20px;font-family:var(--serif);font-weight:700;color:var(--gold-soft);font-size:1.05rem;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--gold);font-size:1.4rem;line-height:1;flex:none}
+.faq[open] summary::after{content:"\\2013"}
+.faq .ans{padding:0 20px 18px;color:var(--cream-90);font-weight:300}
+
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.zbtn{animation:none}.stars,.stars::after{animation:none}}
 `;
 
 // ── Structured data (JSON-LD) ──
@@ -234,11 +292,20 @@ const SITE_SCHEMA = jsonLd({
   ],
 });
 
+const navBar = () => `
+<header class="nav"><div class="nav-in">
+  <a class="nav-logo" href="/"><img src="/logo.svg" alt="Stars & Love"></a>
+  <nav class="nav-links">
+    <a href="/horoscope/">הורוסקופ</a>
+    <a href="/compatibility/">התאמה זוגית</a>
+  </nav>
+</div></header>`;
+
 const head = (title, desc, canonical, extraHead = '') => `<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">${ANALYTICS_HEAD}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">${ANALYTICS_HEAD}${PIXEL_HEAD}
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <link rel="canonical" href="${canonical}">
@@ -253,7 +320,8 @@ const head = (title, desc, canonical, extraHead = '') => `<!DOCTYPE html>
 ${SITE_SCHEMA}${extraHead}
 </head>
 <body>
-<div class="stars" aria-hidden="true"></div>`;
+<div class="stars" aria-hidden="true"></div>
+${navBar()}`;
 
 const COOKIE_BANNER = `
 <div id="ck-banner" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--bg-alt);border-top:1px solid rgba(244,234,215,.15);padding:14px 18px">
@@ -269,6 +337,7 @@ const COOKIE_BANNER = `
 
 const footer = () => `
 <footer><div class="wrap">
+  <a href="/"><img class="flogo" src="/logo.svg" alt="Stars & Love"></a>
   <div class="links">
     <a href="/">דף הבית</a>
     <a href="/horoscope/">הורוסקופ שבועי</a>
@@ -311,7 +380,7 @@ function signPage(sign, rec) {
 
   const faqHtml = `
   <h2 style="font-family:var(--serif);text-align:right;color:var(--cream);margin:28px 0 16px">שאלות נפוצות</h2>
-  ${faqs.map(f => `<div class="card"><h2>${esc(f.q)}</h2><p>${esc(f.a)}</p></div>`).join('')}`;
+  ${faqs.map(f => `<details class="faq"><summary>${esc(f.q)}</summary><div class="ans">${esc(f.a)}</div></details>`).join('')}`;
 
   const breadcrumbSchema = jsonLd({
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
@@ -333,7 +402,7 @@ function signPage(sign, rec) {
   <h1>מזל ${esc(sign.he)} · <span class="zh-week">השבוע</span></h1>
   <p class="sub">${rec?.week_start_date ? `${esc(fmtDate(rec.week_start_date))} – ${esc(fmtDate(rec.week_end_date))}` : 'השבוע'}</p>
 
-  <div class="card"><h2>סיכום השבוע</h2><p>${esc(summary)}</p></div>
+  <div class="card"><h2>מה מצפה למזל ${esc(sign.he)} השבוע</h2><p>${esc(summary)}</p></div>
   ${rec?.planetary_highlights ? `<div class="card"><h2>הדגשים הפלנטריים</h2><p>${esc(rec.planetary_highlights)}</p></div>` : ''}
   ${rec?.lucky_day ? `<div class="card"><h2>היום המוצלח</h2><p>${esc(rec.lucky_day)}</p></div>` : ''}
 
@@ -349,7 +418,7 @@ function signPage(sign, rec) {
     <a class="btn" href="${esc(ctaSign(sign.slug))}">צרי מפת לידה - עכשיו</a>
   </div>
 
-  <a class="back" href="/">לכל המזלות</a>
+  <a class="back" href="/horoscope/">‹ לכל המזלות</a>
 </main>` + footer();
 }
 
@@ -363,7 +432,6 @@ function indexPage() {
           <span class="zname">${esc(s.he)}</span>
         </a>`).join('');
   return head(title, desc, canonical) + `
-<header><div class="wrap"><a href="/"><img src="/logo.svg" alt="Stars & Love"></a></div></header>
 <main class="wrap">
   <h1>הורוסקופ שבועי</h1>
   <p class="sub">בחרי מזל וגלי מה מחכה לך השבוע</p>
@@ -415,11 +483,16 @@ async function buildLanding(recsBySign) {
   const data = SIGNS.map(s => {
     const rec = recsBySign[s.he];
     const summary = (rec && rec.weekly_summary) ? rec.weekly_summary : fallback(s.he);
+    // Bold the first sentence for a stronger hook.
+    const m = summary.match(/^(.*?[.!?])(\s+[\s\S]*)$/);
+    const sumHtml = m ? `<b>${esc(m[1])}</b>${esc(m[2])}` : `<b>${esc(summary)}</b>`;
     return `
         <div class="zdata" id="zd-${s.slug}" hidden>
           <h4>מזל ${esc(s.he)} · <span class="zh-week">השבוע</span></h4>
-          <p>${esc(summary)} <a class="zmore" href="/horoscope/${s.slug}/">עוד...</a></p>
+          <p>${sumHtml}</p>
+          <a class="zmore-link" href="/horoscope/${s.slug}/">לתחזית המלאה ‹</a>
           <a class="btn btn-block" href="${esc(ctaSign(s.slug))}">צרי מפת לידה - עכשיו</a>
+          <p class="cta-note">ללא תשלום · תוצאה מוכנה תוך דקה · ניתן לשמירה ושיתוף</p>
         </div>`;
   }).join('');
 
@@ -427,7 +500,7 @@ async function buildLanding(recsBySign) {
 
   let tpl = await fs.readFile(path.join('static', 'index.html'), 'utf8');
   tpl = tpl.replace('<!--ZODIAC_ACCORDION-->', accordion);
-  tpl = tpl.replace('<!--ANALYTICS-->', ANALYTICS_HEAD);
+  tpl = tpl.replace('<!--ANALYTICS-->', ANALYTICS_HEAD + PIXEL_HEAD);
   tpl = tpl.replace('<!--COOKIE_BANNER-->', COOKIE_BANNER);
   await fs.writeFile(path.join(OUT, 'index.html'), tpl);
 }
