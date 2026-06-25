@@ -29,7 +29,7 @@ const ANALYTICS_HEAD = GA4_ID ? `
 // Meta Pixel — pre-wired, inert until META_PIXEL_ID is set (repo Variable or env).
 // Once the Business Portfolio block is lifted and a Pixel exists, set META_PIXEL_ID
 // and the base code + PageView fire on every page automatically. No code change needed.
-const META_PIXEL_ID = process.env.META_PIXEL_ID || '';
+const META_PIXEL_ID = process.env.META_PIXEL_ID || '995032063509734';
 const PIXEL_HEAD = META_PIXEL_ID ? `
 <!-- Meta Pixel -->
 <script>
